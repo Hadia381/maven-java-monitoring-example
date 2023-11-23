@@ -1,4 +1,4 @@
--name: Build and Push Docker Image
+name: Build and Push Docker Image
 
 on:
   push:
@@ -9,13 +9,22 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build and push Docker image
+      - name: Build Docker image
         run: |
-          docker build -t my-maven-app .
-          docker tag my-maven-app:latest hadiasultan/my-maven-app:v1.0
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-          docker push hadiasultan/my-maven-app:v1.0
+          docker build -t hadiasultan/my-python-image:v1.0 .
+
+      - name: Login to Docker Hub
+        run: |
+          echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+
+      - name: Push Docker image
+        run: |
+          docker push hadiasultan/my-python-image:v1.0
